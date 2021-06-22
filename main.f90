@@ -38,6 +38,9 @@ program main
     initial_pop_SIR = [2, 3, 0]
     call srand(1234)
     
+    open(10, file="input_SIR.txt")
+    call read_input_SIR(10)
+    close(10)
     call SIR_evolution(initial_pop_SIR)
     
 end program

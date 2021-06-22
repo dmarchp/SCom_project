@@ -17,7 +17,7 @@ module SIR
         integer, intent(in) :: file_unit
         integer :: errstat, i
         real(8) :: delta, lambda, init_pop_frac(0:2)
-        namelist /input_SIR/ delta, lambda, init_pop_frac
+        namelist /input_SIR/ delta, lambda, init_pop_frac_input
         
         read(unit=file_unit, nml=input_SIR, iostat=errstat)
         if (errstat > 0) then
@@ -49,6 +49,7 @@ module SIR
             to_assign(i) = i
         enddo
         do i=0,2
+            pop_fraction(i) = dble(initial_pop(i))/dble(Nnodes)
             pop_to_assign = initial_pop(i)
             do j=1,pop_to_assign
                 pos = int(rand()*unassigned) + min_node
@@ -67,6 +68,7 @@ module SIR
         deallocate(to_assign)
         ! Search for active links
         Nactive_links = 0
+        active_links = 0
         k = 1
         node_id = list_of_infected(k)
         do while(node_id.ne.0)
@@ -94,7 +96,9 @@ module SIR
         implicit none
         integer :: i
         do i=1,num_reacs
-            reac_probs = pop_fraction(i) * reac_rates(i)
+            print*, pop_fraction(i)
+            print*, reac_rates(i)
+            reac_probs(i) = pop_fraction(i) * reac_rates(i)
         enddo
     end subroutine compute_reac_probs
     
@@ -131,7 +135,7 @@ module SIR
         implicit none
         integer, intent(in) :: initial_pop(0:2)
         ! internal:
-        integer :: i,j,reac_i
+        integer :: i,j,reac_i,max_iters
         real(8) :: sum_probs, tau
         
         allocate(node_state(min_node:max_node))
@@ -146,13 +150,19 @@ module SIR
         print*, " "
         print*, active_links(1,:)
         print*, active_links(2,:)
-        !do i=1,max_iters
-        !    call compute_reac_probs()
-        !    sum_probs = sum(reac_probs)
-        !    tau = compute_reac_time(sum_probs)
-        !    reac_i = choose_reac(a0,reac_probs)
-        !    call update_system(reac_i,tau, ? )! TO IMPLEMENT: AQUI S'HAURA DE CRIDAR ALS SWAPS DELS VECTORS infected_nodes, active_links
-        !enddo
+        max_iters = 1 
+        print*
+        print*, "Testing evolution loop"
+        do i=1,max_iters
+            call compute_reac_probs()
+            print*, "reac_probs", reac_probs(:)
+            sum_probs = sum(reac_probs)
+            tau = compute_reac_time(sum_probs)
+            print*, "tau", tau
+            reac_i = choose_reac(sum_probs,reac_probs)
+            print*, "chosen reaction", reac_i
+            !call update_system(reac_i,tau, ? )! TO IMPLEMENT: AQUI S'HAURA DE CRIDAR ALS SWAPS DELS VECTORS infected_nodes, active_links
+        enddo
     end subroutine SIR_evolution
         
 end module SIR
