@@ -1,0 +1,12 @@
+&input_SIR
+
+! Rate of recovering (let always be 1)
+delta = 1
+
+! Rate of infection (this is the one that will change):
+lambda = 1.5
+
+! Initial population fraction: susceptible, infected, recovered
+ini_pop_frac(:) = 1.0 0.0 0.0
+
+/

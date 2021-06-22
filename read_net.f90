@@ -89,8 +89,10 @@ module set_up_net
         print*, "min node: ", min_node
         if(reiterate_links.eqv..true.) then
             print*, "links: ", count_links/2
+            num_links = count_links/2
         else
             print*, "links: ", count_links
+            num_links = count_links
         endif
     
         degree = 0
