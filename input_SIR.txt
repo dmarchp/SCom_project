@@ -7,6 +7,6 @@ delta = 1
 lambda = 1.5
 
 ! Initial population fraction: susceptible, infected, recovered
-ini_pop_frac(:) = 1.0 0.0 0.0
+init_pop_frac_input(:) = 1.0 0.0 0.0
 
 /

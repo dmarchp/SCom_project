@@ -1,7 +1,7 @@
 module set_up_net
     implicit none
     integer :: num_links, min_node, max_node, min_degree, max_degree, Nnodes
-    integer, dimension(:), allocatable :: p_ini, p_fin, degree, neighbors, nodes
+    integer, dimension(:), allocatable :: p_ini, p_fin, degree, neighbors
     
     contains
     
@@ -10,6 +10,7 @@ module set_up_net
         implicit none
         integer, intent(in) :: nfi ! net file index
         integer :: read_stat,i,j,count_links,count_links2,aux_int,aux_int2,swaps
+        integer, dimension(:), allocatable :: nodes
         integer, dimension(:,:), allocatable :: check_reps
         integer, dimension(2) :: first_link
         logical :: reiterate_links
