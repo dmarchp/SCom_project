@@ -4,9 +4,10 @@
 delta = 1
 
 ! Rate of infection (this is the one that will change):
-lambda = 1.5
+lambda = 1
 
 ! Initial population fraction: susceptible, infected, recovered
-init_pop_frac_input(:) = 1.0 0.0 0.0
+init_pop_frac_input(:) = 0.9 0.1 0.0
+
 
 /

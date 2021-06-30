@@ -1,3 +1,6 @@
 *.o
 *.mod
 main.x
+results/
+net1000.dat
+net5000.dat

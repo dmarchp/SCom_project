@@ -5,6 +5,7 @@ compiler=gfortran-9
 opt = -fbounds-check
 
 main.x : $(objects)
+	mkdir -p results
 	$(compiler) -o main.x $(opt) $(objects)
 
 $(mods) : $(dep_objects)
@@ -25,3 +26,12 @@ main.o : main.f90 $(mods)
 clean:
 	rm -f *.o
 	rm -f *.mod
+	
+.PHONY: results
+results:
+	make
+	./main.x net$(net_size).dat ${seed}
+	mkdir -p results/net$(net_size)/
+	mv max_inf_infrec_lambda.dat results/net$(net_size)/
+	mv pop_frac_evo_lambda_*.dat results/net$(net_size)/
+
