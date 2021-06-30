@@ -6,7 +6,7 @@ program main
     character(len=50) :: input_name, seed_char
     real(8) :: cbar, avg_max_inf, avg_max_infrec, max_inf, max_infrec, lambda_max, lambda_min, dlambda, lambda
     integer :: i,j, initial_pop_SIR(0:2), seed, Nrea, rea_write, iter_lambda, lambda_int, file_unit
-    character(len=3) :: lambda_tag
+    character(len=4) :: lambda_tag
     
     ! To execute the program >> main.x input_file. Otherwise, an error will occur.
     if (command_argument_count().ne.2) stop "ERROR: Cridar fent >> ./main.x input_net.dat SEED"
@@ -39,22 +39,23 @@ program main
     
     ! aixo s'hauria de posar en un input namelist o algo
     !initial_pop_SIR = [4, 1, 0]
-!    call srand(seed)
+!    call srand(8317909)
 !    open(10, file="input_SIR.txt")
 !    call read_input_SIR(10)
 !    close(10)
+!    reac_rates = [3.6d0, 1d0]
 !    open(10, file="pop_frac_evo.dat")
-!    call SIR_evolution(init_pop_input, 10)
+!    call SIR_evolution(init_pop_input,10,max_inf,max_infrec)
 !    close(10)
     
     ! Evolució temporal, differents rates
-    lambda_min = 0.1d0
-    lambda_max = 5.0d0
-    dlambda = 0.1d0
+    lambda_min = 0.25d0
+    lambda_max = 10d0
+    dlambda = 0.25d0
     iter_lambda = int((lambda_max - lambda_min)/dlambda)
-    Nrea = 500
+    Nrea = 5
     rea_write = 5
-    
+  
     open(10, file="input_SIR.txt")
     call read_input_SIR(10)
     close(10)
@@ -68,7 +69,7 @@ program main
         avg_max_infrec = 0
         !open(10, ...) ! ??? amb el nom de lambda
         lambda_int = lambda*10
-        if(mod(lambda_int,5).eq.0) then
+        if(mod(lambda_int,10).eq.0) then
             write(lambda_tag,'(I0)') lambda_int
             file_unit = 10
             open(file_unit, file="pop_frac_evo_lambda_"//trim(lambda_tag)//".dat")
@@ -76,6 +77,7 @@ program main
             file_unit = 0
         endif
         do i=1,Nrea
+            print*, "seed", seed, "lambda", lambda
             call srand(seed)
             if(i.le.rea_write) then ! make simulation write temporal evolution output
                 call SIR_evolution(init_pop_input,file_unit,max_inf,max_infrec)

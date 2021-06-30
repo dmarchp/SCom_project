@@ -153,7 +153,7 @@ module SIR
         ! Recerca lineal:
         sum_aux = 0d0
         !alea = grnd()*sum_probs
-        alea = rand()*sum_probs
+        alea = (1d0-rand())*sum_probs
         !print*, "alea", alea
         search: do i=1,num_reacs
             sum_aux = sum_aux + reac_probs(i)
@@ -182,7 +182,7 @@ module SIR
         
         max_inf = 0d0
         max_infrec = 0d0
-        
+        !print*, reac_rates
         !print*, "node_state", node_state
         !print*, "infected_nodes", infected_nodes
         !print*, " "
@@ -195,13 +195,13 @@ module SIR
         time = 0
         do i=1,max_iters
             call compute_reac_probs()
-            !print*, "reac_probs", reac_probs(:)
+            !print*, "reac_probs", reac_probs(:), reac_rates(1)
             sum_probs = sum(reac_probs)
             !print*, "sum_probs", sum_probs
             tau = compute_reac_time(sum_probs)
             !print*, "tau", tau
             reac_i = choose_reac(sum_probs,reac_probs)
-            !print*, "chosen reaction", reac_i
+         !   print*, "chosen reaction", reac_i
             call update_system(reac_i)
             !print*, " "
          !   print*, "UPDATE AT ITER", i, " ******************************************************** "
@@ -250,7 +250,15 @@ module SIR
                 infection_link = int(rand()*Nactive_links) + 1 
                 infector_node = active_links(1,infection_link)
                 infected_node = active_links(2,infection_link)
-             !   print*, "Node ", infector_node, " is infecting node ", infected_node
+                !print*, "Node ", infector_node, " is infecting node ", infected_node
+                if(infected_node.eq.0) then
+                    !print*, "ac_links", active_links
+                    print*
+                    print*
+                    print*, "inf_nodes", infected_nodes
+                    print*, "Nactive_links", Nactive_links
+!                    print*, reac_probs
+                endif
                 node_state(infected_node) = INF
                 ! Add infected node to the list of infected nodes:
                 Ninfected = Ninfected + 1
