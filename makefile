@@ -4,9 +4,9 @@ mods=set_up_net.mod net_props.mod SIR.mod
 compiler=gfortran-9
 opt = -fbounds-check
 
-main.x : $(objects)
+main.exe : $(objects)
 	mkdir -p results
-	$(compiler) -o main.x $(opt) $(objects)
+	$(compiler) -o main.exe $(opt) $(objects)
 
 $(mods) : $(dep_objects)
 
@@ -30,7 +30,7 @@ clean:
 .PHONY: results
 results:
 	make
-	./main.x net$(net_size).dat ${seed}
+	./main.exe net$(net_size).dat ${seed}
 	mkdir -p results/net$(net_size)/
 	mv max_inf_infrec_lambda.dat results/net$(net_size)/
 	mv pop_frac_evo_lambda_*.dat results/net$(net_size)/

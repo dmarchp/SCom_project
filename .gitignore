@@ -1,6 +1,7 @@
 *.o
 *.mod
 main.x
+main.exe
 results/
 net1000.dat
 net5000.dat
