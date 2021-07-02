@@ -50,12 +50,13 @@ program main
     
     ! Evolució temporal, differents rates
     lambda_min = 0.1d0
-    lambda_max = 10d0
+    lambda_max = 5d0
     dlambda = 0.25d0
     dlambda_lt1 = 0.1d0
     iter_lambda_lt1 = int((1d0-0.1d0)/dlambda_lt1)
     iter_lambda = int((lambda_max - 1d0)/dlambda)
-    Nrea = 100
+    ! Nrea = 100 ! if computing avg max infected starting from an infected node
+    Nrea = 5
     rea_write = 5
   
     open(10, file="input_SIR.txt")
