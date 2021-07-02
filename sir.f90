@@ -31,7 +31,7 @@ module SIR
         ! Transform the initial population fraction into number of nodes given the number of nodes in the network
         ! AIXO S'HA DE ARREGLAR:
         do i=0,2
-            init_pop_input(i) = int(dble(Nnodes) * init_pop_frac_input(i))
+            init_pop_input(i) = nint(dble(Nnodes) * init_pop_frac_input(i))
          !   print*, init_pop_input(i)
         enddo
         check_sum = sum(init_pop_input)
