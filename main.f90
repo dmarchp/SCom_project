@@ -52,7 +52,7 @@ program main
     lambda_min = 0.1d0
     lambda_max = 10d0
     dlambda = 0.25d0
-    dlambda_lt1 = 0.05d0
+    dlambda_lt1 = 0.1d0
     iter_lambda_lt1 = int((1d0-0.1d0)/dlambda_lt1)
     iter_lambda = int((lambda_max - 1d0)/dlambda)
     Nrea = 100
@@ -72,7 +72,7 @@ program main
         avg_max_infrec = 0
         !open(10, ...) ! ??? amb el nom de lambda
         lambda_int = lambda*10
-        if(mod(lambda_int,5).eq.0) then
+        if(mod(lambda_int,1).eq.0) then
             write(lambda_tag,'(I0)') lambda_int
             file_unit = 10
             open(file_unit, file="pop_frac_evo_lambda_"//trim(lambda_tag)//".dat")
@@ -84,7 +84,7 @@ program main
             call srand(seed)
             if(i.le.rea_write) then ! make simulation write temporal evolution output
                 call SIR_evolution(init_pop_input,file_unit,max_inf,max_infrec)
-                if(mod(lambda_int,5).eq.0) then
+                if(mod(lambda_int,1).eq.0) then
                     write(file_unit,*)
                     write(file_unit,*)
                 endif

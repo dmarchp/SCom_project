@@ -32,7 +32,7 @@ module SIR
         ! AIXO S'HA DE ARREGLAR:
         do i=0,2
             init_pop_input(i) = nint(dble(Nnodes) * init_pop_frac_input(i))
-         !   print*, init_pop_input(i)
+            print*, init_pop_input(i)
         enddo
         check_sum = sum(init_pop_input)
         if(check_sum.lt.Nnodes) then
@@ -131,7 +131,7 @@ module SIR
         reac_probs(1) = dble(Nactive_links) * reac_rates(1)
         reac_probs(2) = dble(Ninfected) * reac_rates(2)
         sum_aux = sum(reac_probs)
-        reac_probs = reac_probs/sum_aux
+        !reac_probs = reac_probs/sum_aux
     end subroutine compute_reac_probs
     
     real(8) function compute_reac_time(a0)
