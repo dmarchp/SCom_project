@@ -217,7 +217,7 @@ module SIR
             ! Chex maximal populations
             if(pop_fraction(1).gt.max_inf) max_inf = pop_fraction(1)
             if(sum(pop_fraction(1:2)).gt.max_infrec) max_infrec = sum(pop_fraction(1:2))
-            if(file_unit.ne.0) then
+            if(file_unit.ne.1000) then
                 write(file_unit,*) i, time, pop_fraction(:)
             endif
             if(population(RECOV).eq.Nnodes) then
