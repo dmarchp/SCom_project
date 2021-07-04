@@ -18,36 +18,30 @@ program main
     call read_net(10)
     close(10)
     
+   ! Compute network properties: 
    ! call comp_degree_distros()
    ! write(*,*)
    ! write(*,*) " Degree distr: ", degree_distr
    ! write(*,*) " Cumulative degree distr: ", c_degree_distr
    ! write(*,*) " Complementary cumulative degree distr: ", cc_degree_distr
-    
    ! call comp_avg_nn_degree_distro()
    ! write(*,*)
    ! write(*,*) " Average nearest neighbor degree distro: ", knn
-    
    ! call count_triangles()
-    
    ! call comp_clustering()
-   ! cbar = avg_clustering()
-   ! print*, "cbar ", cbar
     
     
-    ! SIR evolution: 
-    
-    ! aixo s'hauria de posar en un input namelist o algo
-    !initial_pop_SIR = [4, 1, 0]
-!    call srand(8317909)
+!    SIR evolution simple evolution from the input_SIR.txt parameters:
+!    call srand(seed)
 !    open(10, file="input_SIR.txt")
 !    call read_input_SIR(10)
 !    close(10)
-!    reac_rates = [3.6d0, 1d0]
 !    open(10, file="pop_frac_evo.dat")
 !    call SIR_evolution(init_pop_input,10,max_inf,max_infrec)
 !    close(10)
     
+    
+! Study of the network for many infection rates (keeping the recovering rate to 1, as read from input_SIR.txt):
     ! Evolució temporal, differents rates
     lambda_min = 0.1d0
     lambda_max = 5d0
@@ -64,6 +58,8 @@ program main
     close(10)
     
     open(11, file="max_inf_infrec_lambda.dat")
+    
+    ! Infection rate below the recovering rate:
     lambda = 0d0
     do j=0,iter_lambda_lt1
         lambda = lambda_min + j*dlambda_lt1
@@ -104,6 +100,7 @@ program main
         write(11,*) lambda, avg_max_inf, avg_max_infrec
     enddo
     
+    ! Infection rate above the recovery rate:
     do j=1,iter_lambda
         lambda = 1d0 + j*dlambda
         ! Overwrite reaction rate from input_file:

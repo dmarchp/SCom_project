@@ -16,6 +16,7 @@ module SIR
     contains
     
     subroutine read_input_SIR(file_unit)
+        ! Read input rates and population fraction. Transfrom population fraction into number of nodes, as accurately as possible.
         implicit none
         integer, intent(in) :: file_unit
         integer :: errstat, i, check_sum, still_to_add
@@ -29,7 +30,6 @@ module SIR
         end if
         reac_rates = [lambda, delta]
         ! Transform the initial population fraction into number of nodes given the number of nodes in the network
-        ! AIXO S'HA DE ARREGLAR:
         do i=0,2
             init_pop_input(i) = nint(dble(Nnodes) * init_pop_frac_input(i))
             print*, init_pop_input(i)
@@ -122,9 +122,7 @@ module SIR
     end subroutine random_initial_pop
     
     subroutine compute_reac_probs()
-        ! Es faria servir en cas que la probabilitat de reaccio depengui del numero de nodes infectats.
-        ! Si les probabilitats son directament les rates i son constants, no caldra cridar aquesta subrutina
-        ! No es normalizen les probs (no cal fer-ho pel tower sampling de triar la reaccio) // pero si cal per trobar tau!
+    ! Compute each reaction probability according to reac_rates and the current number of infected nodes/ active links
         implicit none
         real(8) :: sum_aux
         integer :: i
@@ -135,16 +133,14 @@ module SIR
     end subroutine compute_reac_probs
     
     real(8) function compute_reac_time(a0)
-        !use mtmod
+    ! Compute the interval until next reaction by inverse transfrom sampling.
         implicit none
         real(8), intent(in) :: a0
-        !compute_reac_time = - log(grnd())/a0
         compute_reac_time = - log(rand())/a0
     end function compute_reac_time
     
     integer function choose_reac(sum_probs,reac_probs)
     ! Returns the integer identifying the reaction: INFECTION (1) or RECOVERING (2)
-        !use mtmod
         implicit none
         integer i
         real(8), intent(in) :: sum_probs
@@ -152,9 +148,7 @@ module SIR
         real(8) alea,sum_aux
         ! Recerca lineal:
         sum_aux = 0d0
-        !alea = grnd()*sum_probs
         alea = (1d0-rand())*sum_probs
-        !print*, "alea", alea
         search: do i=1,num_reacs
             sum_aux = sum_aux + reac_probs(i)
             if(alea.le.sum_aux) then
@@ -182,37 +176,14 @@ module SIR
         
         max_inf = 0d0
         max_infrec = 0d0
-        !print*, reac_rates
-        !print*, "node_state", node_state
-        !print*, "infected_nodes", infected_nodes
-        !print*, " "
-        !print*, "Active links (inf)", active_links(1,:)
-        !print*, "Active links (susc)", active_links(2,:)
-        !print*
-        !print*, "n", neighbors
-        !print*, "n_SIR", neighbors_SIR
         max_iters = Nnodes * 1000
         time = 0
         do i=1,max_iters
             call compute_reac_probs()
-            !print*, "reac_probs", reac_probs(:), reac_rates(1)
             sum_probs = sum(reac_probs)
-            !print*, "sum_probs", sum_probs
             tau = compute_reac_time(sum_probs)
-            !print*, "tau", tau
             reac_i = choose_reac(sum_probs,reac_probs)
-         !   print*, "chosen reaction", reac_i
             call update_system(reac_i)
-            !print*, " "
-         !   print*, "UPDATE AT ITER", i, " ******************************************************** "
-         !   print*, "node_state", node_state
-         !   print*, "infected_nodes", infected_nodes
-         !   print*, " "
-         !   print*, "Active links (inf)", active_links(1,:)
-         !   print*, "Active links (susc)", active_links(2,:)
-         !   print*
-         !   print*, "n", neighbors
-         !   print*, "n_SIR", neighbors_SIR
             time = time + tau
             ! Chex maximal populations
             if(pop_fraction(1).gt.max_inf) max_inf = pop_fraction(1)
@@ -245,24 +216,15 @@ module SIR
         
         select case(reac_i)
             case(1) ! INFECTION
-                ! Triar un node infectat, despres infectar un dels seus veins susceptibles -> Triar un link actiu
-                ! Un cop fet, actualitzar llista infectats (sumar node infectat) i llista links actius (treure link actiu i afegir nous)
+                ! Choose randomly the infection link:
                 infection_link = int(rand()*Nactive_links) + 1 
                 infector_node = active_links(1,infection_link)
                 infected_node = active_links(2,infection_link)
-                !print*, "Node ", infector_node, " is infecting node ", infected_node
-                if(infected_node.eq.0) then
-                    !print*, "ac_links", active_links
-                    print*
-                    print*
-                    print*, "inf_nodes", infected_nodes
-                    print*, "Nactive_links", Nactive_links
-!                    print*, reac_probs
-                endif
                 node_state(infected_node) = INF
                 ! Add infected node to the list of infected nodes:
                 Ninfected = Ninfected + 1
                 infected_nodes(Ninfected) = infected_node
+                ! Erase active links pointing to the just infected node:
                 do i=p_ini(infected_node),p_fin(infected_node)
                     if(neighbors_SIR(i).ne.0) then
                         ! Update position of swaped link (the last one) for the position to wich is going (the erased link position)
@@ -276,7 +238,6 @@ module SIR
                         endif
                         do j=p_ini(active_links(1,neighbors_SIR(i))),p_fin(active_links(1,neighbors_SIR(i)))
                             if(neighbors(j).eq.infected_node) then
-                                !print*, " ----------- erasing connect. bt. ",active_link(1,neighbors_SIR(i)), " and ", infected_node, "in position ", j , " of n_SIR"
                                 neighbors_SIR(j) = 0
                             endif
                         enddo
@@ -312,7 +273,6 @@ module SIR
                 pos_rec_node = int(rand()*Ninfected) + min_node
                 recovered_node = infected_nodes(pos_rec_node)
                 node_state(recovered_node) = RECOV
-             !   print*, "node ", recovered_node, " is recovering "
                 ! Erase recovered node from list of infected nodes:
                 infected_nodes(pos_rec_node) = infected_nodes(Ninfected)
                 infected_nodes(Ninfected) = 0
@@ -320,12 +280,8 @@ module SIR
                 ! Erase active links that stem from recovered node:
                 if(Nactive_links.gt.0) then
                     do i=p_ini(recovered_node),p_fin(recovered_node)
-                        !print*, "neighbor: ", neighbors(i)
-                        !print*, "position in active links: ", neighbors_SIR(i)
                         if(neighbors_SIR(i).ne.0) then
                             ! Update position of swaped link (the last one) for the position to which is going (the erased link position)
-                            !print*, "active link infected ", active_links(1,neighbors_SIR(i))
-                            !print*, "active link susceptible ", active_links(2,neighbors_SIR(i))
                             susc_node = active_links(2,neighbors_SIR(i))
                             if(neighbors_SIR(i).ne.Nactive_links) then
                                 do j=p_ini(active_links(1,Nactive_links)),p_fin(active_links(1,Nactive_links))
